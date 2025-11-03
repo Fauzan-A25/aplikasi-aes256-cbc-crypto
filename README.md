@@ -222,12 +222,8 @@ Download \& Dekripsi saat dibutuhkan
 
 aes256-cbc-crypto/
 ├── README.md                    \# Dokumentasi ini
-├── requirements.txt             \# Dependencies
-├── LICENSE                      \# MIT License
-├── .gitignore                   \# Exclude file sensitif
 ├── crypto_app.ipynb            \# Main notebook untuk Colab ⭐
-└── examples/
-├── example_encrypted.json  \# Contoh file terenkripsi
+├── example.csv             \# contoh file csv
 └── example_usage.md        \# Tutorial detil
 
 ```
