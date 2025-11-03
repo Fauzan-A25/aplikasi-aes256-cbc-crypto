@@ -223,8 +223,7 @@ Download \& Dekripsi saat dibutuhkan
 aes256-cbc-crypto/
 ├── README.md                    \# Dokumentasi ini
 ├── crypto_app.ipynb            \# Main notebook untuk Colab ⭐
-├── example.csv             \# contoh file csv
-└── example_usage.md        \# Tutorial detil
+└── example.csv             \# contoh file csv
 
 ```
 
