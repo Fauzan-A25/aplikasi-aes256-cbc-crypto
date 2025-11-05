@@ -164,7 +164,7 @@ Password: 1234
 File input: data.csv
 File output: data.csv_encrypted.json
 
-📥 File otomatis didownload!
+📥 File otomatis disave!
 
 ```
 
@@ -185,7 +185,7 @@ Password: 1234
 ✓ FILE BERHASIL DIDEKRIPSI!
 File output: decrypted_data.csv
 
-📥 File otomatis didownload!
+📥 File otomatis disave!
 
 ```
 
