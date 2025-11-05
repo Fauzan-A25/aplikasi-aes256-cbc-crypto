@@ -1,0 +1,238 @@
+FUNCTION derive_key(password: STRING, salt: BYTES) → BYTES
+    CREATE kdf dengan:
+        - Algorithm: SHA256
+        - Length: 32 bytes
+        - Salt: parameter salt
+        - Iterations: 100000
+    
+    RETURN kdf.derive(password diubah ke bytes)
+END FUNCTION
+
+
+FUNCTION encrypt_text(plaintext: STRING, password: STRING) → DICTIONARY
+    GENERATE salt RANDOM 16 bytes
+    GENERATE iv RANDOM 16 bytes
+    
+    key ← derive_key(password, salt)
+    
+    padder ← CREATE PKCS7 padding (block size 128 bits)
+    padded_data ← padder.apply(plaintext diubah ke bytes)
+    
+    cipher ← CREATE AES cipher dengan:
+        - Algorithm: AES
+        - Key: key
+        - Mode: CBC
+        - IV: iv
+    
+    encryptor ← GET encryptor dari cipher
+    ciphertext ← encryptor.process(padded_data)
+    
+    RETURN dictionary dengan:
+        - ciphertext (base64 encoded)
+        - iv (base64 encoded)
+        - salt (base64 encoded)
+END FUNCTION
+
+
+FUNCTION decrypt_text(encrypted_data: DICTIONARY, password: STRING) → STRING
+    ciphertext ← DECODE base64 dari encrypted_data['ciphertext']
+    iv ← DECODE base64 dari encrypted_data['iv']
+    salt ← DECODE base64 dari encrypted_data['salt']
+    
+    key ← derive_key(password, salt)
+    
+    cipher ← CREATE AES cipher dengan:
+        - Algorithm: AES
+        - Key: key
+        - Mode: CBC
+        - IV: iv
+    
+    decryptor ← GET decryptor dari cipher
+    padded_plaintext ← decryptor.process(ciphertext)
+    
+    unpadder ← CREATE PKCS7 unpadding (block size 128 bits)
+    plaintext ← unpadder.remove(padded_plaintext)
+    
+    RETURN plaintext diubah ke STRING
+END FUNCTION
+
+
+FUNCTION upload_file() → STRING atau NULL
+    PRINT "📤 Silakan pilih file untuk diupload..."
+    
+    uploaded ← REQUEST user upload file
+    
+    IF uploaded kosong THEN
+        RETURN NULL
+    END IF
+    
+    filename ← EXTRACT nama file dari uploaded
+    PRINT "✓ File berhasil diupload: " + filename
+    
+    RETURN filename
+END FUNCTION
+
+
+FUNCTION encrypt_file(input_file: STRING, output_file: STRING, password: STRING) → DICTIONARY
+    CHECK ukuran file
+    
+    IF ukuran file > 1 MB THEN
+        RAISE exception "Ukuran file melebihi 1 MB"
+    END IF
+    
+    plaintext ← READ file input_file
+    
+    encrypted_data ← encrypt_text(plaintext, password)
+    
+    CREATE output_file dan WRITE encrypted_data (format JSON)
+    
+    PRINT "✓ File berhasil dienkripsi: " + output_file
+    
+    RETURN encrypted_data
+END FUNCTION
+
+
+FUNCTION decrypt_file(input_file: STRING, output_file: STRING, password: STRING) → STRING
+    encrypted_data ← READ dan PARSE JSON dari input_file
+    
+    plaintext ← decrypt_text(encrypted_data, password)
+    
+    CREATE output_file dan WRITE plaintext
+    
+    PRINT "✓ File berhasil didekripsi: " + output_file
+    
+    RETURN plaintext
+END FUNCTION
+
+
+FUNCTION main()
+    PRINT header aplikasi
+    
+    WHILE TRUE DO
+        DISPLAY menu options (1-4 dan 0 untuk keluar)
+        choice ← INPUT user pilihan
+        
+        TRY
+            CASE choice OF
+            
+                CASE '1': // Enkripsi Teks
+                    plaintext ← INPUT "Teks yang akan dienkripsi"
+                    password ← INPUT "Password"
+                    
+                    IF plaintext kosong OR password kosong THEN
+                        PRINT error message
+                        CONTINUE ke iterasi berikutnya
+                    END IF
+                    
+                    encrypted ← encrypt_text(plaintext, password)
+                    output_file ← CREATE filename dengan timestamp
+                    
+                    WRITE encrypted ke output_file (format JSON)
+                    
+                    PRINT "✓ BERHASIL DIENKRIPSI!"
+                    PRINT details (ciphertext, IV, salt)
+                
+                
+                CASE '2': // Dekripsi Teks
+                    PRINT "📤 Upload file JSON hasil enkripsi..."
+                    json_file ← upload_file()
+                    
+                    IF json_file NULL THEN
+                        PRINT "❌ Upload dibatalkan!"
+                        CONTINUE
+                    END IF
+                    
+                    encrypted_data ← READ dan PARSE JSON dari json_file
+                    password ← INPUT "Password"
+                    
+                    IF password kosong THEN
+                        PRINT error message
+                        CONTINUE
+                    END IF
+                    
+                    plaintext ← decrypt_text(encrypted_data, password)
+                    output_file ← CREATE filename dengan timestamp
+                    
+                    WRITE plaintext ke output_file
+                    
+                    PRINT "✓ BERHASIL DIDEKRIPSI!"
+                    PRINT hasil dekripsi
+                
+                
+                CASE '3': // Enkripsi File
+                    PRINT "📤 Upload file yang akan dienkripsi..."
+                    input_file ← upload_file()
+                    
+                    IF input_file NULL THEN
+                        PRINT "❌ Upload dibatalkan!"
+                        CONTINUE
+                    END IF
+                    
+                    password ← INPUT "Password"
+                    
+                    IF password kosong THEN
+                        PRINT error message
+                        CONTINUE
+                    END IF
+                    
+                    original_content ← READ binary dari input_file
+                    plaintext ← CONVERT ke STRING
+                    encrypted ← encrypt_text(plaintext, password)
+                    
+                    metadata ← CREATE dictionary dengan:
+                        - original_filename
+                        - ciphertext, iv, salt
+                    
+                    output_file ← input_file + "_encrypted.json"
+                    WRITE metadata ke output_file (format JSON)
+                    
+                    PRINT "✓ FILE BERHASIL DIENKRIPSI!"
+                    PRINT file input dan output
+                
+                
+                CASE '4': // Dekripsi File
+                    PRINT "📤 Upload file JSON terenkripsi..."
+                    json_file ← upload_file()
+                    
+                    IF json_file NULL THEN
+                        PRINT "❌ Upload dibatalkan!"
+                        CONTINUE
+                    END IF
+                    
+                    metadata ← READ dan PARSE JSON dari json_file
+                    password ← INPUT "Password"
+                    
+                    IF password kosong THEN
+                        PRINT error message
+                        CONTINUE
+                    END IF
+                    
+                    encrypted_data ← CREATE dictionary dari metadata
+                    plaintext ← decrypt_text(encrypted_data, password)
+                    
+                    original_filename ← GET dari metadata
+                    output_file ← "decrypted_" + original_filename
+                    
+                    WRITE plaintext ke output_file
+                    
+                    PRINT "✓ FILE BERHASIL DIDEKRIPSI!"
+                    PRINT file output dan format asli
+                
+                
+                CASE '0': // Keluar
+                    BREAK dari WHILE loop
+                
+                
+                ELSE:
+                    PRINT "❌ Pilihan tidak valid!"
+            
+            END CASE
+        
+        CATCH exception AS e
+            PRINT "❌ Error: " + error message
+            PRINT "💡 Tips: Pastikan password benar dan file format valid"
+        
+        END TRY
+    
+    END WHILE
+END FUNCTION
