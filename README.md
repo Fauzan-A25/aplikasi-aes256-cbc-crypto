@@ -221,10 +221,10 @@ Download \& Dekripsi saat dibutuhkan
 ```
 
 aes256-cbc-crypto/
-├── README.md                         \# Dokumentasi ini
-├── crypto_app.ipynb                  \# Main notebook untuk Colab ⭐
-├── Flowchart aplikasi crypto.png     \# flowchart
-└── example.csv                       \# contoh file csv
+├── README.md                                                 \# Dokumentasi ini
+├── Tugas_Kriptografi_Fauzan_Ahsanudin_Alfikri.ipynb          \# Main notebook untuk Colab ⭐
+├── Flowchart aplikasi crypto.png                             \# flowchart
+└── example.csv                                               \# contoh file csv
 
 ```
 
