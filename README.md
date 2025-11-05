@@ -107,7 +107,7 @@ Pilih (0-4): 1
 
 Pilih (0-4): 1
 Teks yang akan dienkripsi: Rahasia dari Data Science!
-Password: MyPassword123
+Password: 1234
 
 ✓ BERHASIL DIENKRIPSI!
 File tersimpan: encrypted_text_20251103_134500.json
@@ -136,7 +136,7 @@ Pilih (0-4): 2
 📤 Upload file JSON hasil enkripsi...
 [Pilih file encrypted_text_20251103_134500.json]
 
-Password: MyPassword123
+Password: 1234
 
 ✓ BERHASIL DIDEKRIPSI!
 File tersimpan: decrypted_text_20251103_134600.txt
@@ -157,7 +157,7 @@ Pilih (0-4): 3
 📤 Upload file yang akan dienkripsi...
 [Pilih file data.csv atau dokumen apapun]
 
-Password: MyPassword123
+Password: 1234
 
 ⏳ Mengenkripsi...
 ✓ FILE BERHASIL DIENKRIPSI!
@@ -179,7 +179,7 @@ Pilih (0-4): 4
 📤 Upload file JSON terenkripsi...
 [Pilih file data.csv_encrypted.json]
 
-Password: MyPassword123
+Password: 1234
 
 ⏳ Mendekripsi...
 ✓ FILE BERHASIL DIDEKRIPSI!
